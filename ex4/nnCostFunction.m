@@ -32,7 +32,7 @@ Theta2_grad = zeros(size(Theta2));
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
-%               following parts.
+%               following parts.J
 %
 % Part 1: Feedforward the neural network and return the cost in the
 %         variable J. After implementing Part 1, you can verify that your
@@ -62,24 +62,54 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+%Part 1:Feedfoward
+a1=[ones(m,1) X]';
+z2=Theta1*a1;
+a2=sigmoid(z2);
+a2=[ones(1,m);a2];
+z3=Theta2*a2;
+h_a3=sigmoid(z3);
+
+
+for i=1:m
+temp_y=zeros(num_labels,1);
+temp_y(y(i),1)=1;
+J+=sum(-1.*temp_y.*log(h_a3(:,i))-1.*(1-temp_y).*log(1-h_a3(:,i)));
+end
 
 
 
 
 
+J+=((lambda/(2))*(sum(sum((Theta1.^2)(:,2:end)))+sum(sum((Theta2.^2)(:,2:end)))));
+
+J=J/m;
 
 
 
+for i=1:m
+%step1:delta3
+temp_y=zeros(num_labels,1);
+temp_y(y(i),1)=1;
+delta_3=h_a3(:,i)-temp_y;
+delta_2=(Theta2'*delta_3).*sigmoidGradient([1;z2(:,i)]);
+delta_2=delta_2(2:end);
+Theta2_grad=Theta2_grad+(delta_3*a2(:,i)');
+Theta1_grad=Theta1_grad+(delta_2*a1(:,i)');
+end
 
+Theta2_grad=Theta2_grad/m;
+Theta1_grad=Theta1_grad/m;
 
+temp_t2=Theta2;
+[r,c]=size(Theta2);
+temp_t2(:,1)=zeros(r,1);
+Theta2_grad=Theta2_grad+((lambda/m).*temp_t2);
+temp_t1=Theta1;
+[r,c]=size(Theta1);
+temp_t1(:,1)=zeros(r,1);
 
-
-
-
-
-
-
-
+Theta1_grad=Theta1_grad+((lambda/m).*temp_t1);
 % -------------------------------------------------------------
 
 % =========================================================================
